@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, CheckCircle } from "@phosphor-icons/react";
 import Mandu from "../components/Mandu";
@@ -27,6 +27,12 @@ export default function GameScreen({ onExit, onComplete }) {
   const [shake, setShake] = useState(0);
   const [openTeam, setOpenTeam] = useState(null);
   const [toast, setToast] = useState(null);
+  // 재료 먹기 연출: 날아가는 재료 → 냠냠 + 반짝이 → 팀 소개
+  const [flying, setFlying] = useState(null); // {label, from:{x,y}, to:{x,y}}
+  const [eating, setEating] = useState(false);
+  const [eatBurst, setEatBurst] = useState(0);
+  const manduRef = useRef(null);
+  const pendingTeam = useRef(null);
 
   const chips = useMemo(() => {
     const real = data.teams.map((t) => ({
@@ -46,12 +52,34 @@ export default function GameScreen({ onExit, onComplete }) {
   const found = foundIds.length;
   const progress = total === 0 ? 0 : found / total;
 
-  const pick = (chip) => {
+  const pick = (chip, e) => {
     if (chip.team) {
-      if (foundIds.includes(chip.key)) return;
-      const next = [...foundIds, chip.key];
-      setFoundIds(next);
-      setOpenTeam(chip.team);
+      if (foundIds.includes(chip.key) || flying || eating) return;
+      setFoundIds((f) => [...f, chip.key]);
+      pendingTeam.current = chip.team;
+      // 1) 재료가 만두를 향해 날아간다 (만두가 화면 밖이면 먼저 스크롤)
+      const el = e.currentTarget;
+      const beginFly = () => {
+        const rect = el.getBoundingClientRect();
+        const m = manduRef.current?.getBoundingClientRect();
+        const from = {
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2,
+        };
+        const to = m
+          ? { x: m.left + m.width / 2, y: m.top + m.height * 0.6 }
+          : from;
+        setFlying({ label: chip.label, from, to });
+      };
+      const m = manduRef.current?.getBoundingClientRect();
+      const manduVisible =
+        m && m.top >= 60 && m.bottom <= window.innerHeight * 0.95;
+      if (manduVisible) {
+        beginFly();
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        setTimeout(beginFly, 400);
+      }
     } else {
       if (wrongPicks.includes(chip.key)) return;
       setWrongPicks((w) => [...w, chip.key]);
@@ -60,6 +88,18 @@ export default function GameScreen({ onExit, onComplete }) {
       setToast(`"${chip.label}"은(는) 우리 만두 재료가 아니에요!`);
       setTimeout(() => setToast(null), 1800);
     }
+  };
+
+  // 2) 도착하면 만두가 냠냠 + 반짝이, 3) 그 다음 팀 소개
+  const onFlyArrive = () => {
+    setFlying(null);
+    setEating(true);
+    setEatBurst((b) => b + 1);
+    setTimeout(() => {
+      setEating(false);
+      setOpenTeam(pendingTeam.current);
+      pendingTeam.current = null;
+    }, 700);
   };
 
   const closeModal = () => {
@@ -104,8 +144,13 @@ export default function GameScreen({ onExit, onComplete }) {
       </header>
 
       <main className="mx-auto flex w-full max-w-lg flex-1 flex-col px-5">
-        <div className="mt-4">
-          <Mandu fill={progress} shake={shake} />
+        <div className="mt-4" ref={manduRef}>
+          <Mandu
+            fill={progress}
+            shake={shake}
+            eating={eating}
+            burst={eatBurst}
+          />
         </div>
 
         {/* 찾은 재료 뱃지 */}
@@ -155,7 +200,7 @@ export default function GameScreen({ onExit, onComplete }) {
                     show: { opacity: 1, y: 0 },
                   }}
                   transition={{ type: "spring", stiffness: 140, damping: 16 }}
-                  onClick={() => pick(chip)}
+                  onClick={(e) => pick(chip, e)}
                   disabled={disabled}
                   className={[
                     "font-display relative rounded-2xl border px-3 py-4 text-center text-[15px] leading-snug transition",
@@ -185,6 +230,28 @@ export default function GameScreen({ onExit, onComplete }) {
           )}
         </section>
       </main>
+
+      {/* 날아가는 재료 */}
+      <AnimatePresence>
+        {flying && (
+          <motion.div
+            className="pointer-events-none fixed left-0 top-0 z-50"
+            initial={{ x: flying.from.x, y: flying.from.y, scale: 1 }}
+            animate={{
+              x: flying.to.x,
+              y: [flying.from.y, flying.to.y - 90, flying.to.y],
+              scale: [1, 1.15, 0.35],
+              rotate: [0, -12, 8],
+            }}
+            transition={{ duration: 0.55, ease: [0.3, 0, 0.4, 1] }}
+            onAnimationComplete={onFlyArrive}
+          >
+            <span className="font-display block -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full bg-leaf-500 px-4 py-2 text-sm text-white shadow-lg">
+              {flying.label}
+            </span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* 오답 토스트 */}
       <AnimatePresence>
