@@ -378,7 +378,10 @@ export default function AdminScreen({ onBack }) {
     }));
 
   const copyShareLink = async () => {
-    const url = `${window.location.origin}${window.location.pathname}?d=${encodeData(data)}`;
+    // Firebase 연동 시엔 짧은 주소만으로 충분 (데이터는 서버에서 실시간 로드)
+    // 미연동 시엔 데이터를 링크에 담아 공유
+    const base = `${window.location.origin}${window.location.pathname}`;
+    const url = cloud.enabled ? base : `${base}?d=${encodeData(data)}`;
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
@@ -573,7 +576,11 @@ export default function AdminScreen({ onBack }) {
           )}
           <button
             onClick={copyShareLink}
-            className="font-display flex w-full items-center justify-center gap-2 rounded-2xl bg-leaf-500 py-3.5 text-lg text-white shadow-[0_5px_0_#4c6740] transition active:translate-y-[2px] active:shadow-[0_3px_0_#4c6740]"
+            className={
+              cloud.enabled
+                ? "font-display flex w-full items-center justify-center gap-2 rounded-2xl border border-dough-300 bg-white py-3 text-charcoal-700 shadow-[0_4px_0_#e2cfa4] transition active:translate-y-[2px] active:shadow-[0_2px_0_#e2cfa4]"
+                : "font-display flex w-full items-center justify-center gap-2 rounded-2xl bg-leaf-500 py-3.5 text-lg text-white shadow-[0_5px_0_#4c6740] transition active:translate-y-[2px] active:shadow-[0_3px_0_#4c6740]"
+            }
           >
             {copied ? (
               <>
@@ -581,7 +588,8 @@ export default function AdminScreen({ onBack }) {
               </>
             ) : (
               <>
-                <LinkSimple size={20} weight="bold" /> 게임 공유 링크 복사
+                <LinkSimple size={20} weight="bold" />
+                {cloud.enabled ? "게임 주소 복사" : "게임 공유 링크 복사"}
               </>
             )}
           </button>
