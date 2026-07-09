@@ -36,10 +36,12 @@ export default function HomeScreen({ onStart, onAdmin }) {
           </h1>
           <p className="mt-3 max-w-[34ch] leading-relaxed text-charcoal-600">
             오늘의 특제 만두는{" "}
-            <span className="font-semibold text-persimmon-600">
+            <span className="whitespace-nowrap font-semibold text-persimmon-600">
               「{data.manduName}」
             </span>
-            . 진짜 속재료(팀명)만 골라 담아 만두를 완성해 주세요!
+            <br />
+            진짜 <span className="whitespace-nowrap">속재료(팀명)</span>만 골라
+            담아 만두를 <span className="whitespace-nowrap">완성해 주세요!</span>
           </p>
         </motion.div>
 
