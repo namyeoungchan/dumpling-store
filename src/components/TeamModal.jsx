@@ -2,6 +2,19 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X, UsersThree, ChatCircleDots } from "@phosphor-icons/react";
 
+/** 이름 첫 글자 — 이모지(조합 이모지 포함)도 깨지지 않게 grapheme 단위로 자름 */
+function firstGrapheme(name) {
+  if (!name) return "?";
+  if (typeof Intl !== "undefined" && Intl.Segmenter) {
+    const seg = new Intl.Segmenter("ko", { granularity: "grapheme" })
+      .segment(name)
+      [Symbol.iterator]()
+      .next().value;
+    return seg ? seg.segment : "?";
+  }
+  return Array.from(name)[0] ?? "?";
+}
+
 /** 정답을 맞추면 뜨는 팀 소개 시트 */
 export default function TeamModal({ team, onClose }) {
   return (
@@ -92,7 +105,7 @@ export default function TeamModal({ team, onClose }) {
                       className="flex items-center gap-3 py-3"
                     >
                       <span className="font-display flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-dough-200 text-lg text-persimmon-600">
-                        {m.name.slice(0, 1) || "?"}
+                        {firstGrapheme(m.name)}
                       </span>
                       <div className="min-w-0">
                         <p className="truncate font-semibold text-charcoal-800">
