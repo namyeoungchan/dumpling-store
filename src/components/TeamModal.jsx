@@ -70,7 +70,7 @@ export default function TeamModal({ team, onClose }) {
                   weight="duotone"
                   className="mt-0.5 shrink-0 text-persimmon-500"
                 />
-                <p className="text-[15px] leading-relaxed text-charcoal-700">
+                <p className="whitespace-pre-line text-[15px] leading-relaxed text-charcoal-700">
                   {team.description}
                 </p>
               </div>
@@ -117,7 +117,7 @@ export default function TeamModal({ team, onClose }) {
                           )}
                         </p>
                         {m.note && (
-                          <p className="truncate text-sm text-charcoal-600/80">
+                          <p className="text-sm leading-snug text-charcoal-600/80">
                             {m.note}
                           </p>
                         )}

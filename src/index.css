@@ -31,6 +31,9 @@ body {
   font-family: var(--font-body);
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
+  /* 한글 줄바꿈: 단어 중간에서 자르지 않되, 넘치면 안전하게 꺾음 */
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 .font-display {
