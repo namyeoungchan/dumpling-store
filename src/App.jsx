@@ -3,6 +3,7 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { DataProvider, useData } from "./store";
 import HomeScreen from "./screens/HomeScreen";
+import PlayerScreen, { loadPlayer } from "./screens/PlayerScreen";
 import GameScreen from "./screens/GameScreen";
 import CompleteScreen from "./screens/CompleteScreen";
 import AdminScreen from "./screens/AdminScreen";
@@ -24,11 +25,13 @@ function CloudGate({ children }) {
 }
 
 export default function App() {
-  const [screen, setScreen] = useState("home"); // home | game | complete | admin
+  const [screen, setScreen] = useState("home"); // home | player | game | complete | admin
   const [gameKey, setGameKey] = useState(0); // 다시하기 시 게임 상태 리셋
-  const [result, setResult] = useState({ missCount: 0 });
+  const [player, setPlayer] = useState(() => loadPlayer());
+  const [result, setResult] = useState({ missCount: 0, timeMs: 0 });
 
-  const startGame = () => {
+  const startGame = (p) => {
+    if (p) setPlayer(p);
     setGameKey((k) => k + 1);
     setScreen("game");
   };
@@ -47,8 +50,14 @@ export default function App() {
           >
             {screen === "home" && (
               <HomeScreen
-                onStart={startGame}
+                onStart={() => setScreen("player")}
                 onAdmin={() => setScreen("admin")}
+              />
+            )}
+            {screen === "player" && (
+              <PlayerScreen
+                onSubmit={(p) => startGame(p)}
+                onBack={() => setScreen("home")}
               />
             )}
             {screen === "game" && (
@@ -63,8 +72,9 @@ export default function App() {
             )}
             {screen === "complete" && (
               <CompleteScreen
-                missCount={result.missCount}
-                onRestart={startGame}
+                player={player}
+                result={result}
+                onRestart={() => setScreen("player")}
                 onHome={() => setScreen("home")}
               />
             )}

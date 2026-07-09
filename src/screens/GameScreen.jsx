@@ -1,7 +1,23 @@
 "use client";
-import { useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, CheckCircle } from "@phosphor-icons/react";
+import { ArrowLeft, CheckCircle, Timer } from "@phosphor-icons/react";
+import { fmtTime } from "../results";
+
+/** 진행 시간 배지 — 매초 갱신이 게임 화면 전체를 리렌더하지 않도록 격리 */
+const TimerBadge = memo(function TimerBadge({ startAt }) {
+  const [now, setNow] = useState(startAt);
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <span className="flex items-center gap-1 rounded-full bg-cream-200 px-2.5 py-1.5 font-mono text-sm font-semibold text-charcoal-600">
+      <Timer size={15} weight="bold" />
+      {fmtTime(now - startAt)}
+    </span>
+  );
+});
 import Mandu from "../components/Mandu";
 import TeamModal from "../components/TeamModal";
 import { useData } from "../store";
@@ -21,6 +37,7 @@ function shuffle(arr, seed) {
 export default function GameScreen({ onExit, onComplete }) {
   const { data } = useData();
   const [seed] = useState(() => Math.floor(Math.random() * 233280));
+  const [startAt] = useState(() => Date.now());
   const [foundIds, setFoundIds] = useState([]);
   const [wrongPicks, setWrongPicks] = useState([]);
   const [missCount, setMissCount] = useState(0);
@@ -105,7 +122,8 @@ export default function GameScreen({ onExit, onComplete }) {
   const closeModal = () => {
     setOpenTeam(null);
     if (found === total && total > 0) {
-      setTimeout(() => onComplete({ missCount }), 350);
+      const timeMs = Date.now() - startAt;
+      setTimeout(() => onComplete({ missCount, timeMs }), 350);
     }
   };
 
@@ -129,6 +147,7 @@ export default function GameScreen({ onExit, onComplete }) {
               진짜 속재료를 모두 찾아 주세요
             </p>
           </div>
+          <TimerBadge startAt={startAt} />
           <div className="font-display rounded-full bg-dough-200 px-3 py-1.5 text-sm text-persimmon-600">
             {found} / {total}
           </div>

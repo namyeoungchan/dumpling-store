@@ -59,4 +59,26 @@ export async function publishGameData(data) {
   await ctx.fs.setDoc(ref, data);
 }
 
+/* ---------- 게임 기록 (results 컬렉션) ---------- */
+
+export async function submitResultRemote(result) {
+  const ctx = await ensureFirestore();
+  if (!ctx) throw new Error("Firebase가 설정되지 않았습니다");
+  await ctx.fs.addDoc(ctx.fs.collection(ctx.db, "results"), result);
+}
+
+export async function fetchResultsRemote() {
+  const ctx = await ensureFirestore();
+  if (!ctx) throw new Error("Firebase가 설정되지 않았습니다");
+  const snap = await ctx.fs.getDocs(ctx.fs.collection(ctx.db, "results"));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}
+
+export async function deleteAllResultsRemote() {
+  const ctx = await ensureFirestore();
+  if (!ctx) throw new Error("Firebase가 설정되지 않았습니다");
+  const snap = await ctx.fs.getDocs(ctx.fs.collection(ctx.db, "results"));
+  await Promise.all(snap.docs.map((d) => ctx.fs.deleteDoc(d.ref)));
+}
+
 export { isFirebaseConfigured };

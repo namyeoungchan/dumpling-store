@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
@@ -8,10 +8,13 @@ import {
   CaretDown,
   LinkSimple,
   ArrowCounterClockwise,
+  ArrowsClockwise,
   LockKey,
   Check,
+  Trophy,
 } from "@phosphor-icons/react";
 import { useData, encodeData } from "../store";
+import { fetchResults, clearResults, rankSort, scoreOf, fmtTime } from "../results";
 
 const uid = (p) => `${p}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
 
@@ -227,6 +230,121 @@ function TeamEditor({ team, onChange, onDelete }) {
   );
 }
 
+/* ---------- 순위표 ---------- */
+function Leaderboard() {
+  const [records, setRecords] = useState(null); // null=로딩, []=비어있음
+  const [error, setError] = useState(false);
+
+  const load = () => {
+    setError(false);
+    setRecords(null);
+    fetchResults()
+      .then((all) => setRecords(rankSort(all)))
+      .catch(() => setError(true));
+  };
+
+  useEffect(load, []);
+
+  const wipe = () => {
+    if (!window.confirm("모든 게임 기록을 삭제할까요? 되돌릴 수 없습니다."))
+      return;
+    clearResults()
+      .then(load)
+      .catch(() => setError(true));
+  };
+
+  const medal = ["text-persimmon-500", "text-dough-400", "text-leaf-500"];
+
+  return (
+    <section>
+      <div className="mb-1 flex items-center justify-between">
+        <h2 className="font-display flex items-center gap-1.5 text-lg text-charcoal-700">
+          <Trophy size={20} weight="duotone" className="text-persimmon-500" />
+          게임 기록 · 순위
+        </h2>
+        <button
+          onClick={load}
+          aria-label="새로고침"
+          className="flex items-center gap-1 rounded-full px-2.5 py-1.5 text-xs font-semibold text-charcoal-600 transition hover:bg-cream-200 active:scale-95"
+        >
+          <ArrowsClockwise size={14} weight="bold" /> 새로고침
+        </button>
+      </div>
+      <p className="mb-3 text-xs text-charcoal-600/60">
+        기록 = 시간(초) + 헛손질 × 10초. 낮을수록 상위.
+      </p>
+
+      {error && (
+        <p className="rounded-xl bg-persimmon-500/10 p-4 text-sm font-medium text-persimmon-600">
+          기록을 불러오지 못했어요. Firebase 규칙에 results 권한이 있는지
+          확인해 주세요.
+        </p>
+      )}
+
+      {!error && records === null && (
+        <div className="space-y-2">
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="h-12 animate-pulse rounded-xl bg-cream-200"
+              style={{ animationDelay: `${i * 150}ms` }}
+            />
+          ))}
+        </div>
+      )}
+
+      {!error && records?.length === 0 && (
+        <p className="rounded-xl border border-dashed border-dough-300 p-5 text-center text-sm text-charcoal-600/60">
+          아직 기록이 없어요. 첫 만두를 기다리는 중...
+        </p>
+      )}
+
+      {!error && records?.length > 0 && (
+        <>
+          <div className="divide-y divide-dough-200 rounded-2xl border border-dough-300 bg-white px-4">
+            {records.map((r, i) => (
+              <div key={r.id ?? i} className="flex items-center gap-3 py-2.5">
+                <span
+                  className={`font-display w-7 shrink-0 text-center text-lg ${medal[i] ?? "text-charcoal-600/40"}`}
+                >
+                  {i + 1}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-charcoal-800">
+                    {r.name || "이름 없음"}
+                  </p>
+                  <p className="truncate text-xs text-charcoal-600/60">
+                    {r.affiliation || "-"}
+                  </p>
+                </div>
+                <div className="shrink-0 text-right">
+                  <p className="font-mono text-sm font-bold text-persimmon-600">
+                    {scoreOf(r)}초
+                  </p>
+                  <p className="font-mono text-[11px] text-charcoal-600/50">
+                    {fmtTime(r.timeMs)} · 헛손질 {r.missCount ?? 0}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-2 flex items-center justify-between">
+            <span className="text-xs text-charcoal-600/50">
+              총 {records.length}개 기록
+            </span>
+            <button
+              onClick={wipe}
+              className="flex items-center gap-1 rounded-full px-2.5 py-1.5 text-xs font-semibold text-persimmon-600 transition hover:bg-persimmon-500/10 active:scale-95"
+            >
+              <Trash size={13} weight="bold" /> 기록 전체 삭제
+            </button>
+          </div>
+        </>
+      )}
+    </section>
+  );
+}
+
 /* ---------- 관리자 메인 ---------- */
 export default function AdminScreen({ onBack }) {
   const { data, setData, resetToDefaults, cloud } = useData();
@@ -409,6 +527,9 @@ export default function AdminScreen({ onBack }) {
             </button>
           </form>
         </section>
+
+        {/* 순위표 */}
+        <Leaderboard />
 
         {/* 공유 & 초기화 */}
         <section className="space-y-3 rounded-2xl bg-dough-100 p-4">

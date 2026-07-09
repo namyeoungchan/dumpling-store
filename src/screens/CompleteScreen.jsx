@@ -1,10 +1,18 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowCounterClockwise, House } from "@phosphor-icons/react";
+import { ArrowCounterClockwise, House, Trophy } from "@phosphor-icons/react";
 import Mandu from "../components/Mandu";
 import TeamModal from "../components/TeamModal";
 import { useData } from "../store";
+import {
+  submitResult,
+  fetchResults,
+  scoreOf,
+  rankOf,
+  fmtTime,
+  MISS_PENALTY_SEC,
+} from "../results";
 
 /** 완성 축하 파티클 — 밀가루/참깨 느낌의 점들이 흩날림 */
 function Confetti() {
@@ -35,9 +43,37 @@ function Confetti() {
   );
 }
 
-export default function CompleteScreen({ missCount = 0, onRestart, onHome }) {
+export default function CompleteScreen({
+  player,
+  result = { missCount: 0, timeMs: 0 },
+  onRestart,
+  onHome,
+}) {
   const { data } = useData();
   const [openTeam, setOpenTeam] = useState(null);
+  const [rankInfo, setRankInfo] = useState(null); // {rank, total} | "error"
+  const submitted = useRef(false);
+  const missCount = result.missCount;
+  const record = {
+    affiliation: player?.affiliation ?? "",
+    name: player?.name ?? "",
+    timeMs: result.timeMs,
+    missCount: result.missCount,
+  };
+
+  // 기록 저장 (1회) 후 내 순위 조회
+  useEffect(() => {
+    if (submitted.current) return;
+    submitted.current = true;
+    const stamped = { ...record, createdAt: Date.now() };
+    submitResult(stamped)
+      .then(fetchResults)
+      .then((all) =>
+        setRankInfo({ rank: rankOf(stamped, all), total: all.length }),
+      )
+      .catch(() => setRankInfo("error"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="relative flex min-h-[100dvh] flex-col overflow-hidden px-6 pb-10 pt-10">
@@ -57,9 +93,63 @@ export default function CompleteScreen({ missCount = 0, onRestart, onHome }) {
             만두 완성
           </h1>
           <p className="mt-2 text-sm text-charcoal-600/80">
-            {data.shopName} 만두가게의 모든 속재료를 찾았습니다
-            {missCount > 0 ? ` (헛손질 ${missCount}번)` : " — 한 번에!"}
+            {player?.name ? `${player.name}님, ` : ""}모든 속재료를
+            찾았습니다{missCount === 0 ? " — 한 번에!" : ""}
           </p>
+        </motion.div>
+
+        {/* 기록 */}
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="mt-5 rounded-2xl border border-dough-300 bg-white/70 px-4 py-3.5"
+        >
+          <div className="grid grid-cols-3 divide-x divide-dough-200 text-center">
+            <div>
+              <p className="text-[11px] font-medium text-charcoal-600/60">
+                걸린 시간
+              </p>
+              <p className="mt-0.5 font-mono text-lg font-bold text-charcoal-800">
+                {fmtTime(result.timeMs)}
+              </p>
+            </div>
+            <div>
+              <p className="text-[11px] font-medium text-charcoal-600/60">
+                헛손질
+              </p>
+              <p className="mt-0.5 font-mono text-lg font-bold text-charcoal-800">
+                {missCount}회
+              </p>
+            </div>
+            <div>
+              <p className="text-[11px] font-medium text-charcoal-600/60">
+                최종 기록
+              </p>
+              <p className="mt-0.5 font-mono text-lg font-bold text-persimmon-600">
+                {scoreOf(record)}초
+              </p>
+            </div>
+          </div>
+          <p className="mt-2 text-center text-[11px] text-charcoal-600/50">
+            기록 = 시간(초) + 헛손질 × {MISS_PENALTY_SEC}초
+          </p>
+          <div className="mt-2 border-t border-dough-200 pt-2 text-center">
+            {rankInfo === null && (
+              <p className="text-sm text-charcoal-600/60">순위 집계 중...</p>
+            )}
+            {rankInfo === "error" && (
+              <p className="text-sm text-charcoal-600/60">
+                기록 저장에 실패했어요 (순위 제외)
+              </p>
+            )}
+            {rankInfo && rankInfo !== "error" && (
+              <p className="font-display flex items-center justify-center gap-1.5 text-lg text-leaf-600">
+                <Trophy size={20} weight="duotone" />
+                지금까지 {rankInfo.total}명 중 {rankInfo.rank}위!
+              </p>
+            )}
+          </div>
         </motion.div>
 
         <motion.div

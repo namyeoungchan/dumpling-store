@@ -42,6 +42,9 @@ npm run build    # 배포용 빌드 → dist/ 폴더
        match /config/gameData {
          allow read, write: if true;
        }
+       match /results/{resultId} {
+         allow read, write: if true;
+       }
        match /{document=**} {
          allow read, write: if false;
        }
