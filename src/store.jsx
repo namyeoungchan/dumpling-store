@@ -6,6 +6,11 @@ import {
   useState,
 } from "react";
 import { DEFAULT_DATA, STORAGE_KEY } from "./data/defaults";
+import {
+  isFirebaseConfigured,
+  subscribeGameData,
+  publishGameData,
+} from "./firebase";
 
 const DataContext = createContext(null);
 
@@ -83,6 +88,8 @@ function loadInitial() {
 
 export function DataProvider({ children }) {
   const [data, setData] = useState(loadInitial);
+  // Firebase 사용 시 첫 원격 응답을 받기 전까지 로딩 표시
+  const [cloudReady, setCloudReady] = useState(!isFirebaseConfigured);
 
   useEffect(() => {
     try {
@@ -92,6 +99,15 @@ export function DataProvider({ children }) {
     }
   }, [data]);
 
+  // 원격(Firestore) 데이터 구독 — 관리자가 게시하면 모든 접속자에게 반영
+  useEffect(() => {
+    const unsub = subscribeGameData(
+      (remote) => setData(sanitize(remote)),
+      () => setCloudReady(true),
+    );
+    return unsub;
+  }, []);
+
   const api = useMemo(
     () => ({
       data,
@@ -100,8 +116,13 @@ export function DataProvider({ children }) {
           sanitize(typeof next === "function" ? next(prev) : next),
         ),
       resetToDefaults: () => setData(sanitize(DEFAULT_DATA)),
+      cloud: {
+        enabled: isFirebaseConfigured,
+        ready: cloudReady,
+        publish: () => publishGameData(data),
+      },
     }),
-    [data],
+    [data, cloudReady],
   );
 
   return <DataContext.Provider value={api}>{children}</DataContext.Provider>;

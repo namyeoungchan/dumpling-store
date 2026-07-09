@@ -1,11 +1,27 @@
 "use client";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { DataProvider } from "./store";
+import { DataProvider, useData } from "./store";
 import HomeScreen from "./screens/HomeScreen";
 import GameScreen from "./screens/GameScreen";
 import CompleteScreen from "./screens/CompleteScreen";
 import AdminScreen from "./screens/AdminScreen";
+
+/** Firebase 첫 응답 전 로딩 화면 (미설정 시 바로 통과) */
+function CloudGate({ children }) {
+  const { cloud } = useData();
+  if (cloud.ready) return children;
+  return (
+    <div className="flex min-h-[100dvh] flex-col items-center justify-center gap-4">
+      <motion.div
+        animate={{ y: [0, -8, 0] }}
+        transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
+        className="h-14 w-16 rounded-[50%] border-4 border-dough-400 bg-dough-100"
+      />
+      <p className="font-display text-charcoal-600">가게 문 여는 중...</p>
+    </div>
+  );
+}
 
 export default function App() {
   const [screen, setScreen] = useState("home"); // home | game | complete | admin
@@ -19,6 +35,7 @@ export default function App() {
 
   return (
     <DataProvider>
+      <CloudGate>
       <div className="grain min-h-[100dvh]">
         <AnimatePresence mode="wait">
           <motion.div
@@ -57,6 +74,7 @@ export default function App() {
           </motion.div>
         </AnimatePresence>
       </div>
+      </CloudGate>
     </DataProvider>
   );
 }

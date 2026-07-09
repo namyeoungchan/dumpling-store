@@ -229,10 +229,23 @@ function TeamEditor({ team, onChange, onDelete }) {
 
 /* ---------- 관리자 메인 ---------- */
 export default function AdminScreen({ onBack }) {
-  const { data, setData, resetToDefaults } = useData();
+  const { data, setData, resetToDefaults, cloud } = useData();
   const [unlocked, setUnlocked] = useState(false);
   const [copied, setCopied] = useState(false);
   const [newDecoy, setNewDecoy] = useState("");
+  const [publishState, setPublishState] = useState("idle"); // idle | saving | saved | error
+
+  const publish = async () => {
+    setPublishState("saving");
+    try {
+      await cloud.publish();
+      setPublishState("saved");
+      setTimeout(() => setPublishState("idle"), 2500);
+    } catch {
+      setPublishState("error");
+      setTimeout(() => setPublishState("idle"), 3500);
+    }
+  };
 
   if (!unlocked) {
     return (
@@ -400,11 +413,43 @@ export default function AdminScreen({ onBack }) {
         {/* 공유 & 초기화 */}
         <section className="space-y-3 rounded-2xl bg-dough-100 p-4">
           <h2 className="font-display text-lg text-charcoal-700">배포 · 공유</h2>
-          <p className="text-xs leading-relaxed text-charcoal-600/70">
-            수정한 내용은 이 기기(브라우저)에만 저장됩니다. 아래 공유 링크를
-            만들어 단톡방 등에 올리면, 링크를 연 모든 사람이 수정된 내용으로
-            게임을 하게 됩니다.
-          </p>
+          {cloud.enabled ? (
+            <>
+              <p className="text-xs leading-relaxed text-charcoal-600/70">
+                아래 버튼을 누르면 수정한 내용이 저장되어{" "}
+                <strong>게임에 접속하는 모든 사람에게 즉시 반영</strong>됩니다.
+              </p>
+              <button
+                onClick={publish}
+                disabled={publishState === "saving"}
+                className={[
+                  "font-display flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-lg text-white transition",
+                  publishState === "error"
+                    ? "bg-persimmon-500 shadow-[0_5px_0_#b34a1b]"
+                    : "bg-leaf-500 shadow-[0_5px_0_#4c6740]",
+                  publishState === "saving"
+                    ? "opacity-70"
+                    : "active:translate-y-[2px] active:shadow-none",
+                ].join(" ")}
+              >
+                {publishState === "saving" && "저장하는 중..."}
+                {publishState === "saved" && (
+                  <>
+                    <Check size={20} weight="bold" /> 모두에게 반영 완료!
+                  </>
+                )}
+                {publishState === "error" &&
+                  "저장 실패 — 인터넷 연결을 확인해 주세요"}
+                {publishState === "idle" && "저장하고 모두에게 반영하기"}
+              </button>
+            </>
+          ) : (
+            <p className="text-xs leading-relaxed text-charcoal-600/70">
+              수정한 내용은 이 기기(브라우저)에만 저장됩니다. 아래 공유 링크를
+              만들어 단톡방 등에 올리면, 링크를 연 모든 사람이 수정된 내용으로
+              게임을 하게 됩니다.
+            </p>
+          )}
           <button
             onClick={copyShareLink}
             className="font-display flex w-full items-center justify-center gap-2 rounded-2xl bg-leaf-500 py-3.5 text-lg text-white shadow-[0_5px_0_#4c6740] transition active:translate-y-[2px] active:shadow-[0_3px_0_#4c6740]"
