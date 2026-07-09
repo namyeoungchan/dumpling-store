@@ -11,12 +11,12 @@
 // ─────────────────────────────────────────────────────────────
 
 export const firebaseConfig = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: "",
+  apiKey: "AIzaSyBhJHjJ9XY17XVXFJObOmv_YdXt-d_nBb0",
+  authDomain: "dumpling-d64d3.firebaseapp.com",
+  projectId: "dumpling-d64d3",
+  storageBucket: "dumpling-d64d3.firebasestorage.app",
+  messagingSenderId: "370727172119",
+  appId: "1:370727172119:web:ee157211107be7e2a6c452",
 };
 
 export const isFirebaseConfigured = Boolean(
