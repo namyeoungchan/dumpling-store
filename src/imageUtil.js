@@ -1,8 +1,8 @@
 /**
- * 사진 파일 → 정사각형 아바타 데이터 URL (기본 128px, JPEG 압축).
- * Firestore 문서에 그대로 저장할 수 있을 만큼 작게 만든다 (~5-10KB).
+ * 사진 파일 → 정사각형 아바타 데이터 URL (기본 384px, JPEG 압축).
+ * 확대 보기에도 선명하면서 Firestore 문서에 저장 가능한 크기 (~20-30KB).
  */
-export async function fileToAvatar(file, size = 128) {
+export async function fileToAvatar(file, size = 384) {
   const source = await loadBitmap(file);
   const w = source.width ?? source.naturalWidth;
   const h = source.height ?? source.naturalHeight;

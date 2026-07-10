@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, UsersThree, ChatCircleDots } from "@phosphor-icons/react";
 import ManduAvatar from "./ManduAvatar";
@@ -6,6 +7,11 @@ import { roleStyle } from "../roleColors";
 
 /** 정답을 맞추면 뜨는 팀 소개 시트 */
 export default function TeamModal({ team, onClose }) {
+  const [zoom, setZoom] = useState(null); // 확대 중인 팀원
+
+  // 모달이 닫히거나 다른 팀으로 바뀌면 확대도 닫기
+  useEffect(() => setZoom(null), [team]);
+
   return (
     <AnimatePresence>
       {team && (
@@ -94,11 +100,17 @@ export default function TeamModal({ team, onClose }) {
                       className="flex items-center gap-3 py-3"
                     >
                       {m.photo ? (
-                        <img
-                          src={m.photo}
-                          alt={`${m.name} 사진`}
-                          className="h-11 w-11 shrink-0 rounded-full border border-dough-200 object-cover"
-                        />
+                        <button
+                          onClick={() => setZoom(m)}
+                          aria-label={`${m.name} 사진 크게 보기`}
+                          className="shrink-0 transition active:scale-95"
+                        >
+                          <img
+                            src={m.photo}
+                            alt={`${m.name} 사진`}
+                            className="h-11 w-11 rounded-full border border-dough-200 object-cover"
+                          />
+                        </button>
                       ) : (
                         <ManduAvatar
                           seed={`${m.id}${m.name}`}
@@ -136,6 +148,56 @@ export default function TeamModal({ team, onClose }) {
               계속 만두 빚기
             </button>
           </motion.div>
+
+          {/* 사진 확대 보기 */}
+          <AnimatePresence>
+            {zoom && (
+              <motion.div
+                className="absolute inset-0 z-20 flex items-center justify-center p-8"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setZoom(null);
+                }}
+              >
+                <div className="absolute inset-0 bg-charcoal-900/70 backdrop-blur-sm" />
+                <motion.figure
+                  initial={{ scale: 0.5, opacity: 0, y: 30 }}
+                  animate={{ scale: 1, opacity: 1, y: 0 }}
+                  exit={{ scale: 0.7, opacity: 0 }}
+                  transition={{ type: "spring", stiffness: 260, damping: 22 }}
+                  className="relative w-full max-w-xs"
+                >
+                  <img
+                    src={zoom.photo}
+                    alt={`${zoom.name} 사진 확대`}
+                    className="aspect-square w-full rounded-[2rem] border-4 border-cream-50 object-cover shadow-2xl"
+                  />
+                  <figcaption className="mt-4 text-center">
+                    <p className="font-display text-xl text-cream-50">
+                      {zoom.name}
+                      {zoom.role && (
+                        <span
+                          className="ml-2 rounded-full px-2.5 py-0.5 align-middle text-xs font-medium"
+                          style={roleStyle(zoom.roleColor)}
+                        >
+                          {zoom.role}
+                        </span>
+                      )}
+                    </p>
+                    {zoom.note && (
+                      <p className="mt-1 text-sm text-cream-50/80">{zoom.note}</p>
+                    )}
+                  </figcaption>
+                  <p className="mt-3 text-center text-xs text-cream-50/50">
+                    탭하면 닫혀요
+                  </p>
+                </motion.figure>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       )}
     </AnimatePresence>
