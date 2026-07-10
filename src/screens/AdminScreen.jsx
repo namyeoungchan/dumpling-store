@@ -18,6 +18,7 @@ import {
 import { useData, encodeData } from "../store";
 import { fetchResults, clearResults, rankSort, scoreOf, fmtTime } from "../results";
 import { fileToAvatar } from "../imageUtil";
+import { ROLE_COLORS, ROLE_COLOR_KEYS, roleStyle } from "../roleColors";
 
 /** 팀원 프로필 사진 선택 버튼 (선택 즉시 128px로 압축 저장) */
 function MemberPhoto({ member, onChange }) {
@@ -261,6 +262,30 @@ function TeamEditor({ team, onChange, onDelete }) {
                           >
                             <Trash size={16} weight="bold" />
                           </button>
+                        </div>
+                        {/* 직책 라벨 색 선택 */}
+                        <div className="mt-2 flex items-center gap-2">
+                          <span
+                            className="rounded-full px-2 py-0.5 text-xs font-medium"
+                            style={roleStyle(m.roleColor)}
+                          >
+                            {m.role || "직책 라벨"}
+                          </span>
+                          <div className="flex gap-1.5">
+                            {ROLE_COLOR_KEYS.map((key) => (
+                              <button
+                                key={key}
+                                onClick={() => patchMember(m.id, { roleColor: key })}
+                                aria-label={`라벨 색: ${ROLE_COLORS[key].label}`}
+                                className={`h-5 w-5 rounded-full transition active:scale-90 ${
+                                  (m.roleColor ?? "leaf") === key
+                                    ? "ring-2 ring-charcoal-800 ring-offset-1 ring-offset-cream-100"
+                                    : ""
+                                }`}
+                                style={{ backgroundColor: ROLE_COLORS[key].text }}
+                              />
+                            ))}
+                          </div>
                         </div>
                       </div>
                     </div>

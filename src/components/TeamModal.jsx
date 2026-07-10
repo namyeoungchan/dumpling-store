@@ -1,19 +1,8 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, UsersThree, ChatCircleDots } from "@phosphor-icons/react";
-
-/** 이름 첫 글자 — 이모지(조합 이모지 포함)도 깨지지 않게 grapheme 단위로 자름 */
-function firstGrapheme(name) {
-  if (!name) return "?";
-  if (typeof Intl !== "undefined" && Intl.Segmenter) {
-    const seg = new Intl.Segmenter("ko", { granularity: "grapheme" })
-      .segment(name)
-      [Symbol.iterator]()
-      .next().value;
-    return seg ? seg.segment : "?";
-  }
-  return Array.from(name)[0] ?? "?";
-}
+import ManduAvatar from "./ManduAvatar";
+import { roleStyle } from "../roleColors";
 
 /** 정답을 맞추면 뜨는 팀 소개 시트 */
 export default function TeamModal({ team, onClose }) {
@@ -111,15 +100,19 @@ export default function TeamModal({ team, onClose }) {
                           className="h-11 w-11 shrink-0 rounded-full border border-dough-200 object-cover"
                         />
                       ) : (
-                        <span className="font-display flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-dough-200 text-lg text-persimmon-600">
-                          {firstGrapheme(m.name)}
-                        </span>
+                        <ManduAvatar
+                          seed={`${m.id}${m.name}`}
+                          className="h-11 w-11"
+                        />
                       )}
                       <div className="min-w-0">
                         <p className="truncate font-semibold text-charcoal-800">
                           {m.name}
                           {m.role && (
-                            <span className="ml-2 rounded-full bg-leaf-500/10 px-2 py-0.5 text-xs font-medium text-leaf-600">
+                            <span
+                              className="ml-2 rounded-full px-2 py-0.5 text-xs font-medium"
+                              style={roleStyle(m.roleColor)}
+                            >
                               {m.role}
                             </span>
                           )}

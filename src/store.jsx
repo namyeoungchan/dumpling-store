@@ -50,6 +50,7 @@ function sanitize(raw) {
       role: m.role ?? "",
       note: m.note ?? "",
       photo: m.photo ?? "",
+      roleColor: m.roleColor ?? "leaf",
     })),
   }));
   d.decoys = (raw.decoys ?? DEFAULT_DATA.decoys).filter(
