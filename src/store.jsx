@@ -49,6 +49,7 @@ function sanitize(raw) {
       name: m.name ?? "",
       role: m.role ?? "",
       note: m.note ?? "",
+      photo: m.photo ?? "",
     })),
   }));
   d.decoys = (raw.decoys ?? DEFAULT_DATA.decoys).filter(

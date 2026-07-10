@@ -104,9 +104,17 @@ export default function TeamModal({ team, onClose }) {
                       }}
                       className="flex items-center gap-3 py-3"
                     >
-                      <span className="font-display flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-dough-200 text-lg text-persimmon-600">
-                        {firstGrapheme(m.name)}
-                      </span>
+                      {m.photo ? (
+                        <img
+                          src={m.photo}
+                          alt={`${m.name} 사진`}
+                          className="h-11 w-11 shrink-0 rounded-full border border-dough-200 object-cover"
+                        />
+                      ) : (
+                        <span className="font-display flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-dough-200 text-lg text-persimmon-600">
+                          {firstGrapheme(m.name)}
+                        </span>
+                      )}
                       <div className="min-w-0">
                         <p className="truncate font-semibold text-charcoal-800">
                           {m.name}

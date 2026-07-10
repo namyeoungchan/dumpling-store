@@ -12,9 +12,68 @@ import {
   LockKey,
   Check,
   Trophy,
+  Camera,
+  X,
 } from "@phosphor-icons/react";
 import { useData, encodeData } from "../store";
 import { fetchResults, clearResults, rankSort, scoreOf, fmtTime } from "../results";
+import { fileToAvatar } from "../imageUtil";
+
+/** 팀원 프로필 사진 선택 버튼 (선택 즉시 128px로 압축 저장) */
+function MemberPhoto({ member, onChange }) {
+  const [busy, setBusy] = useState(false);
+
+  const pick = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setBusy(true);
+    try {
+      onChange(await fileToAvatar(file));
+    } catch {
+      window.alert("사진을 읽지 못했어요. 다른 사진으로 시도해 주세요.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="relative shrink-0">
+      <label
+        className={`flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-full border transition active:scale-95 ${
+          member.photo
+            ? "border-dough-300"
+            : "border-dashed border-dough-400 bg-white text-dough-400"
+        } ${busy ? "animate-pulse" : ""}`}
+      >
+        {member.photo ? (
+          <img
+            src={member.photo}
+            alt={`${member.name || "팀원"} 사진`}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <Camera size={20} weight="duotone" />
+        )}
+        <input
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={pick}
+        />
+      </label>
+      {member.photo && (
+        <button
+          onClick={() => onChange("")}
+          aria-label="사진 삭제"
+          className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-charcoal-800 text-cream-50 active:scale-90"
+        >
+          <X size={11} weight="bold" />
+        </button>
+      )}
+    </div>
+  );
+}
 
 const uid = (p) => `${p}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
 
@@ -165,38 +224,44 @@ function TeamEditor({ team, onChange, onDelete }) {
                   {team.members.map((m) => (
                     <div
                       key={m.id}
-                      className="rounded-xl bg-cream-100 p-3"
+                      className="flex gap-3 rounded-xl bg-cream-100 p-3"
                     >
-                      <div className="grid grid-cols-2 gap-2">
-                        <input
-                          value={m.name}
-                          onChange={(e) => patchMember(m.id, { name: e.target.value })}
-                          placeholder="이름"
-                          className="rounded-lg border border-dough-300 bg-white px-3 py-2 text-sm outline-none focus:border-persimmon-400"
-                        />
-                        <input
-                          value={m.role}
-                          onChange={(e) => patchMember(m.id, { role: e.target.value })}
-                          placeholder="직책 (예: 팀장)"
-                          className="rounded-lg border border-dough-300 bg-white px-3 py-2 text-sm outline-none focus:border-persimmon-400"
-                        />
-                      </div>
-                      <div className="mt-2 flex gap-2">
-                        <input
-                          value={m.note}
-                          onChange={(e) => patchMember(m.id, { note: e.target.value })}
-                          placeholder="한 줄 소개 (선택)"
-                          className="min-w-0 flex-1 rounded-lg border border-dough-300 bg-white px-3 py-2 text-sm outline-none focus:border-persimmon-400"
-                        />
-                        <button
-                          onClick={() =>
-                            patch({ members: team.members.filter((x) => x.id !== m.id) })
-                          }
-                          aria-label="팀원 삭제"
-                          className="shrink-0 rounded-lg border border-dough-300 bg-white px-2.5 text-charcoal-600/60 transition active:scale-95"
-                        >
-                          <Trash size={16} weight="bold" />
-                        </button>
+                      <MemberPhoto
+                        member={m}
+                        onChange={(photo) => patchMember(m.id, { photo })}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="grid grid-cols-2 gap-2">
+                          <input
+                            value={m.name}
+                            onChange={(e) => patchMember(m.id, { name: e.target.value })}
+                            placeholder="이름"
+                            className="min-w-0 rounded-lg border border-dough-300 bg-white px-3 py-2 text-sm outline-none focus:border-persimmon-400"
+                          />
+                          <input
+                            value={m.role}
+                            onChange={(e) => patchMember(m.id, { role: e.target.value })}
+                            placeholder="직책 (예: 팀장)"
+                            className="min-w-0 rounded-lg border border-dough-300 bg-white px-3 py-2 text-sm outline-none focus:border-persimmon-400"
+                          />
+                        </div>
+                        <div className="mt-2 flex gap-2">
+                          <input
+                            value={m.note}
+                            onChange={(e) => patchMember(m.id, { note: e.target.value })}
+                            placeholder="한 줄 소개 (선택)"
+                            className="min-w-0 flex-1 rounded-lg border border-dough-300 bg-white px-3 py-2 text-sm outline-none focus:border-persimmon-400"
+                          />
+                          <button
+                            onClick={() =>
+                              patch({ members: team.members.filter((x) => x.id !== m.id) })
+                            }
+                            aria-label="팀원 삭제"
+                            className="shrink-0 rounded-lg border border-dough-300 bg-white px-2.5 text-charcoal-600/60 transition active:scale-95"
+                          >
+                            <Trash size={16} weight="bold" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -354,6 +419,14 @@ export default function AdminScreen({ onBack }) {
   const [publishState, setPublishState] = useState("idle"); // idle | saving | saved | error
 
   const publish = async () => {
+    // Firestore 문서 한도(1MB) 사전 확인 — 사진이 아주 많을 때 대비
+    const bytes = new Blob([JSON.stringify(data)]).size;
+    if (bytes > 950_000) {
+      window.alert(
+        `데이터가 저장 한도에 가깝습니다 (${Math.round(bytes / 1024)}KB / 1024KB).\n팀원 사진 몇 장을 지우고 다시 시도해 주세요.`,
+      );
+      return;
+    }
     setPublishState("saving");
     try {
       await cloud.publish();
