@@ -85,6 +85,16 @@ export default function Mandu({
 
       <Sparkles burst={burst} />
 
+      {/* 완성 단계: 만두 SVG 대신 이미지 */}
+      {done ? (
+        <motion.img
+          src="/mandu-done.png"
+          alt="완성된 만두"
+          className="w-full drop-shadow-[0_18px_24px_rgba(160,120,60,0.18)]"
+          animate={{ scale: plump, y: [0, -4, 0] }}
+          transition={{ y: { repeat: Infinity, duration: 2.4, ease: "easeInOut" } }}
+        />
+      ) : (
       <motion.svg
         viewBox="0 0 240 190"
         className="w-full drop-shadow-[0_18px_24px_rgba(160,120,60,0.18)]"
@@ -192,6 +202,7 @@ export default function Mandu({
           />
         )}
       </motion.svg>
+      )}
     </div>
   );
 }
