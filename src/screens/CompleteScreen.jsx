@@ -103,7 +103,7 @@ export default function CompleteScreen({
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
-          className="mt-5 rounded-2xl border border-dough-300 bg-white/70 px-4 py-3.5"
+          className="mt-5 rounded-2xl border border-dough-300 bg-surface/70 px-4 py-3.5"
         >
           <div className="grid grid-cols-3 divide-x divide-dough-200 text-center">
             <div>
@@ -180,7 +180,7 @@ export default function CompleteScreen({
                   show: { opacity: 1, scale: 1 },
                 }}
                 onClick={() => setOpenTeam(t)}
-                className="font-display rounded-full border border-dough-300 bg-white px-4 py-2 text-sm text-charcoal-700 shadow-[0_3px_0_#e2cfa4] transition active:translate-y-[2px] active:shadow-none"
+                className="font-display rounded-full border border-dough-300 bg-surface px-4 py-2 text-sm text-charcoal-700 shadow-[0_3px_0_var(--color-dough-300)] transition active:translate-y-[2px] active:shadow-none"
               >
                 {t.name}
               </motion.button>
@@ -203,7 +203,7 @@ export default function CompleteScreen({
           </button>
           <button
             onClick={onHome}
-            className="font-display flex items-center justify-center gap-2 rounded-2xl border border-dough-300 bg-white py-3.5 text-lg text-charcoal-700 shadow-[0_6px_0_#e2cfa4] transition active:translate-y-[2px] active:shadow-[0_4px_0_#e2cfa4]"
+            className="font-display flex items-center justify-center gap-2 rounded-2xl border border-dough-300 bg-surface py-3.5 text-lg text-charcoal-700 shadow-[0_6px_0_var(--color-dough-300)] transition active:translate-y-[2px] active:shadow-[0_4px_0_var(--color-dough-300)]"
           >
             <House size={20} weight="duotone" />
             처음으로

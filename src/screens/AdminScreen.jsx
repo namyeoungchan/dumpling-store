@@ -44,7 +44,7 @@ function MemberPhoto({ member, onChange }) {
         className={`flex h-12 w-12 cursor-pointer items-center justify-center overflow-hidden rounded-full border transition active:scale-95 ${
           member.photo
             ? "border-dough-300"
-            : "border-dashed border-dough-400 bg-white text-dough-400"
+            : "border-dashed border-dough-400 bg-surface text-dough-400"
         } ${busy ? "animate-pulse" : ""}`}
       >
         {member.photo ? (
@@ -90,7 +90,7 @@ function Field({ label, value, onChange, placeholder, textarea }) {
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         rows={textarea ? 3 : undefined}
-        className="w-full rounded-xl border border-dough-300 bg-white px-3.5 py-2.5 text-[15px] text-charcoal-800 outline-none transition placeholder:text-charcoal-600/30 focus:border-persimmon-400 focus:ring-2 focus:ring-persimmon-400/20"
+        className="w-full rounded-xl border border-dough-300 bg-surface px-3.5 py-2.5 text-[15px] text-charcoal-800 outline-none transition placeholder:text-charcoal-600/30 focus:border-persimmon-400 focus:ring-2 focus:ring-persimmon-400/20"
       />
     </label>
   );
@@ -130,7 +130,7 @@ function PinGate({ pin, onPass, onBack }) {
             setError(false);
           }}
           className={[
-            "font-display mt-5 w-full rounded-2xl border-2 bg-white px-4 py-3 text-center text-2xl tracking-[0.5em] outline-none transition",
+            "font-display mt-5 w-full rounded-2xl border-2 bg-surface px-4 py-3 text-center text-2xl tracking-[0.5em] outline-none transition",
             error
               ? "border-persimmon-500 text-persimmon-600"
               : "border-dough-300 text-charcoal-800 focus:border-persimmon-400",
@@ -170,7 +170,7 @@ function TeamEditor({ team, onChange, onDelete }) {
     });
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-dough-300 bg-white">
+    <div className="overflow-hidden rounded-2xl border border-dough-300 bg-surface">
       <button
         onClick={() => setOpen((o) => !o)}
         className="flex w-full items-center justify-between gap-2 px-4 py-3.5 text-left"
@@ -237,13 +237,13 @@ function TeamEditor({ team, onChange, onDelete }) {
                             value={m.name}
                             onChange={(e) => patchMember(m.id, { name: e.target.value })}
                             placeholder="이름"
-                            className="min-w-0 rounded-lg border border-dough-300 bg-white px-3 py-2 text-sm outline-none focus:border-persimmon-400"
+                            className="min-w-0 rounded-lg border border-dough-300 bg-surface px-3 py-2 text-sm outline-none focus:border-persimmon-400"
                           />
                           <input
                             value={m.role}
                             onChange={(e) => patchMember(m.id, { role: e.target.value })}
                             placeholder="직책 (예: 팀장)"
-                            className="min-w-0 rounded-lg border border-dough-300 bg-white px-3 py-2 text-sm outline-none focus:border-persimmon-400"
+                            className="min-w-0 rounded-lg border border-dough-300 bg-surface px-3 py-2 text-sm outline-none focus:border-persimmon-400"
                           />
                         </div>
                         <div className="mt-2 flex gap-2">
@@ -251,14 +251,14 @@ function TeamEditor({ team, onChange, onDelete }) {
                             value={m.note}
                             onChange={(e) => patchMember(m.id, { note: e.target.value })}
                             placeholder="한 줄 소개 (선택)"
-                            className="min-w-0 flex-1 rounded-lg border border-dough-300 bg-white px-3 py-2 text-sm outline-none focus:border-persimmon-400"
+                            className="min-w-0 flex-1 rounded-lg border border-dough-300 bg-surface px-3 py-2 text-sm outline-none focus:border-persimmon-400"
                           />
                           <button
                             onClick={() =>
                               patch({ members: team.members.filter((x) => x.id !== m.id) })
                             }
                             aria-label="팀원 삭제"
-                            className="shrink-0 rounded-lg border border-dough-300 bg-white px-2.5 text-charcoal-600/60 transition active:scale-95"
+                            className="shrink-0 rounded-lg border border-dough-300 bg-surface px-2.5 text-charcoal-600/60 transition active:scale-95"
                           >
                             <Trash size={16} weight="bold" />
                           </button>
@@ -391,7 +391,7 @@ function Leaderboard() {
 
       {!error && records?.length > 0 && (
         <>
-          <div className="divide-y divide-dough-200 rounded-2xl border border-dough-300 bg-white px-4">
+          <div className="divide-y divide-dough-200 rounded-2xl border border-dough-300 bg-surface px-4">
             {records.map((r, i) => (
               <div key={r.id ?? i} className="flex items-center gap-3 py-2.5">
                 <span
@@ -586,7 +586,7 @@ export default function AdminScreen({ onBack }) {
             {data.decoys.map((decoy, i) => (
               <span
                 key={`${decoy}-${i}`}
-                className="flex items-center gap-1.5 rounded-full border border-dough-300 bg-white py-1.5 pl-3.5 pr-2 text-sm text-charcoal-700"
+                className="flex items-center gap-1.5 rounded-full border border-dough-300 bg-surface py-1.5 pl-3.5 pr-2 text-sm text-charcoal-700"
               >
                 {decoy}
                 <button
@@ -618,7 +618,7 @@ export default function AdminScreen({ onBack }) {
               value={newDecoy}
               onChange={(e) => setNewDecoy(e.target.value)}
               placeholder="예: 야근방지팀"
-              className="min-w-0 flex-1 rounded-xl border border-dough-300 bg-white px-3.5 py-2.5 text-[15px] outline-none placeholder:text-charcoal-600/30 focus:border-persimmon-400"
+              className="min-w-0 flex-1 rounded-xl border border-dough-300 bg-surface px-3.5 py-2.5 text-[15px] outline-none placeholder:text-charcoal-600/30 focus:border-persimmon-400"
             />
             <button
               type="submit"
@@ -676,7 +676,7 @@ export default function AdminScreen({ onBack }) {
             onClick={copyShareLink}
             className={
               cloud.enabled
-                ? "font-display flex w-full items-center justify-center gap-2 rounded-2xl border border-dough-300 bg-white py-3 text-charcoal-700 shadow-[0_4px_0_#e2cfa4] transition active:translate-y-[2px] active:shadow-[0_2px_0_#e2cfa4]"
+                ? "font-display flex w-full items-center justify-center gap-2 rounded-2xl border border-dough-300 bg-surface py-3 text-charcoal-700 shadow-[0_4px_0_var(--color-dough-300)] transition active:translate-y-[2px] active:shadow-[0_2px_0_var(--color-dough-300)]"
                 : "font-display flex w-full items-center justify-center gap-2 rounded-2xl bg-leaf-500 py-3.5 text-lg text-white shadow-[0_5px_0_#4c6740] transition active:translate-y-[2px] active:shadow-[0_3px_0_#4c6740]"
             }
           >
@@ -696,7 +696,7 @@ export default function AdminScreen({ onBack }) {
               if (window.confirm("모든 내용을 처음 예시 데이터로 되돌릴까요?"))
                 resetToDefaults();
             }}
-            className="flex w-full items-center justify-center gap-1.5 rounded-2xl border border-dough-300 bg-white py-3 text-sm font-semibold text-charcoal-600 transition active:scale-[0.98]"
+            className="flex w-full items-center justify-center gap-1.5 rounded-2xl border border-dough-300 bg-surface py-3 text-sm font-semibold text-charcoal-600 transition active:scale-[0.98]"
           >
             <ArrowCounterClockwise size={16} weight="bold" /> 기본값으로 초기화
           </button>

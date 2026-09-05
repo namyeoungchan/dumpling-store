@@ -22,7 +22,7 @@ export default function TeamModal({ team, onClose }) {
           exit={{ opacity: 0 }}
         >
           <div
-            className="absolute inset-0 bg-charcoal-900/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-scrim/40 backdrop-blur-sm"
             onClick={onClose}
           />
           <motion.div
@@ -31,7 +31,7 @@ export default function TeamModal({ team, onClose }) {
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: 60, opacity: 0 }}
             transition={{ type: "spring", stiffness: 260, damping: 26 }}
-            className="relative z-10 max-h-[86dvh] w-full overflow-y-auto rounded-t-[2rem] bg-cream-50 px-6 pb-10 pt-5 shadow-[0_-20px_60px_rgba(60,40,10,0.25)] sm:max-w-lg sm:rounded-[2rem] sm:pb-8"
+            className="relative z-10 max-h-[86dvh] w-full overflow-y-auto rounded-t-[2rem] bg-cream-50 px-6 pb-10 pt-5 shadow-[0_-20px_60px_rgba(60,40,10,0.25)] dark:shadow-[0_-20px_60px_rgba(0,0,0,0.6)] sm:max-w-lg sm:rounded-[2rem] sm:pb-8"
           >
             <div className="mx-auto mb-5 h-1.5 w-12 rounded-full bg-dough-300 sm:hidden" />
 
@@ -162,7 +162,7 @@ export default function TeamModal({ team, onClose }) {
                   setZoom(null);
                 }}
               >
-                <div className="absolute inset-0 bg-charcoal-900/70 backdrop-blur-sm" />
+                <div className="absolute inset-0 bg-scrim/70 backdrop-blur-sm" />
                 <motion.figure
                   initial={{ scale: 0.5, opacity: 0, y: 30 }}
                   animate={{ scale: 1, opacity: 1, y: 0 }}

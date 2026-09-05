@@ -227,7 +227,7 @@ export default function GameScreen({ onExit, onComplete }) {
                       ? "border-leaf-500/40 bg-leaf-500/10 text-leaf-600"
                       : isWrong
                         ? "border-dough-200 bg-cream-200 text-charcoal-600/35 line-through decoration-2"
-                        : "border-dough-300 bg-white text-charcoal-700 shadow-[0_4px_0_#e2cfa4] active:translate-y-[2px] active:shadow-[0_2px_0_#e2cfa4]",
+                        : "border-dough-300 bg-surface text-charcoal-700 shadow-[0_4px_0_var(--color-dough-300)] active:translate-y-[2px] active:shadow-[0_2px_0_var(--color-dough-300)]",
                   ].join(" ")}
                 >
                   {chip.label}

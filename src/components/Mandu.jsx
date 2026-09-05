@@ -61,7 +61,7 @@ export default function Mandu({
           {[0, 1, 2].map((i) => (
             <div
               key={i}
-              className="steam h-10 w-2.5 rounded-full bg-white/80 blur-[3px]"
+              className="steam h-10 w-2.5 rounded-full bg-white/80 blur-[3px] dark:bg-white/45"
               style={{ animationDelay: `${i * 0.7}s` }}
             />
           ))}
@@ -121,8 +121,8 @@ export default function Mandu({
         key={shake} /* shake 값이 바뀔 때마다 재생 */
       >
         {/* 접시 */}
-        <ellipse cx="120" cy="168" rx="96" ry="14" fill="#e9dcc4" />
-        <ellipse cx="120" cy="164" rx="96" ry="14" fill="#f3ebdc" />
+        <ellipse cx="120" cy="168" rx="96" ry="14" fill="var(--color-plate-back)" />
+        <ellipse cx="120" cy="164" rx="96" ry="14" fill="var(--color-plate-front)" />
 
         {/* 만두 몸통 */}
         <path

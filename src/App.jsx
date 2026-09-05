@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { DataProvider, useData } from "./store";
+import { ThemeProvider } from "./theme";
 import HomeScreen from "./screens/HomeScreen";
 import PlayerScreen, { loadPlayer } from "./screens/PlayerScreen";
 import GameScreen from "./screens/GameScreen";
@@ -37,54 +38,56 @@ export default function App() {
   };
 
   return (
-    <DataProvider>
-      <CloudGate>
-      <div className="grain min-h-[100dvh]">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={screen}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-          >
-            {screen === "home" && (
-              <HomeScreen
-                onStart={() => setScreen("player")}
-                onAdmin={() => setScreen("admin")}
-              />
-            )}
-            {screen === "player" && (
-              <PlayerScreen
-                onSubmit={(p) => startGame(p)}
-                onBack={() => setScreen("home")}
-              />
-            )}
-            {screen === "game" && (
-              <GameScreen
-                key={gameKey}
-                onExit={() => setScreen("home")}
-                onComplete={(r) => {
-                  setResult(r);
-                  setScreen("complete");
-                }}
-              />
-            )}
-            {screen === "complete" && (
-              <CompleteScreen
-                player={player}
-                result={result}
-                onRestart={() => setScreen("player")}
-                onHome={() => setScreen("home")}
-              />
-            )}
-            {screen === "admin" && (
-              <AdminScreen onBack={() => setScreen("home")} />
-            )}
-          </motion.div>
-        </AnimatePresence>
-      </div>
-      </CloudGate>
-    </DataProvider>
+    <ThemeProvider>
+      <DataProvider>
+        <CloudGate>
+          <div className="grain min-h-[100dvh]">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={screen}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              >
+                {screen === "home" && (
+                  <HomeScreen
+                    onStart={() => setScreen("player")}
+                    onAdmin={() => setScreen("admin")}
+                  />
+                )}
+                {screen === "player" && (
+                  <PlayerScreen
+                    onSubmit={(p) => startGame(p)}
+                    onBack={() => setScreen("home")}
+                  />
+                )}
+                {screen === "game" && (
+                  <GameScreen
+                    key={gameKey}
+                    onExit={() => setScreen("home")}
+                    onComplete={(r) => {
+                      setResult(r);
+                      setScreen("complete");
+                    }}
+                  />
+                )}
+                {screen === "complete" && (
+                  <CompleteScreen
+                    player={player}
+                    result={result}
+                    onRestart={() => setScreen("player")}
+                    onHome={() => setScreen("home")}
+                  />
+                )}
+                {screen === "admin" && (
+                  <AdminScreen onBack={() => setScreen("home")} />
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </CloudGate>
+      </DataProvider>
+    </ThemeProvider>
   );
 }

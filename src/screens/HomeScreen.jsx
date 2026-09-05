@@ -2,6 +2,7 @@
 import { motion } from "framer-motion";
 import { GearSix, Play } from "@phosphor-icons/react";
 import Mandu from "../components/Mandu";
+import ThemeToggle from "../components/ThemeToggle";
 import { useData } from "../store";
 
 export default function HomeScreen({ onStart, onAdmin }) {
@@ -9,12 +10,13 @@ export default function HomeScreen({ onStart, onAdmin }) {
 
   return (
     <div className="relative flex min-h-[100dvh] flex-col px-6 pb-10 pt-6">
-      {/* 관리자 진입 — 우상단에 조용히 */}
-      <div className="flex justify-end">
+      {/* 다크 모드 전환 + 관리자 진입 — 우상단 */}
+      <div className="flex items-center justify-end gap-1">
+        <ThemeToggle />
         <button
           onClick={onAdmin}
           aria-label="관리자"
-          className="rounded-full p-2.5 text-dough-400 transition hover:bg-cream-200 hover:text-charcoal-600 active:scale-95"
+          className="flex h-10 w-10 items-center justify-center rounded-full text-dough-400 transition hover:bg-cream-200 hover:text-charcoal-600 active:scale-95"
         >
           <GearSix size={22} weight="duotone" />
         </button>

@@ -37,7 +37,7 @@ export default function PlayerScreen({ onSubmit, onBack }) {
   };
 
   const field =
-    "w-full rounded-xl border bg-white px-3.5 py-3 text-[16px] text-charcoal-800 outline-none transition placeholder:text-charcoal-600/30 focus:ring-2";
+    "w-full rounded-xl border bg-surface px-3.5 py-3 text-[16px] text-charcoal-800 outline-none transition placeholder:text-charcoal-600/30 focus:ring-2";
 
   return (
     <div className="flex min-h-[100dvh] flex-col px-6 pb-10 pt-6">
